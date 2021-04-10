@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Scikit-learn Lambda
+  
+  Provided by AWSLambdas.com
+
+Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: lambda
+  SklearnFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - PASTE HERE YOUR LAYER ARN
+      Events:
+        Sklearn:
+          Type: Api
+          Properties:
+            Path: /sklearn
+            Method: get
+            RestApiId: !Ref ApiGateway
+
+Outputs:
+  SklearnApi:
+    Description: "API URL"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/lambda/sklearn/"
+  SklearnFunction:
+    Description: "Scikit-learn Lambda Function ARN"
+    Value: !GetAtt SklearnFunction.Arn
+  SklearnFunctionIamRole:
+    Description: "Implicit IAM Role created for the Scikit-learn Lambda"
+    Value: !GetAtt SklearnFunctionRole.Arn
